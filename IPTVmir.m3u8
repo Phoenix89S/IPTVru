@@ -6804,3 +6804,14 @@ https://stream8.cinerama.uz/1423/tracks-v1a1/mono.m3u8
 
 #EXTINF:-1 tvg-id="11601" tvg-logo="http://epg.one/img2/11601.png" group-title="4K" ,Venera.TV Том и Джерри 4K
 
+#EXTINF:-1 tvg-id="daserste" tvg-logo="http://epg.one/img2/daserste.png" group-title="Germany" ,1. Das Erste
+http://5.180.164.197:8080/DASERSTE/index.m3u8
+
+#EXTINF:-1 tvg-id="zdf" tvg-logo="http://epg.one/img2/zdf.png" group-title="Germany" ,2. ZDF
+http://5.180.164.197:8080/ZDF/index.m3u8
+
+#EXTINF:-1 tvg-id="rtl" tvg-logo="http://epg.one/img2/rtl.png" group-title="Germany" ,3. RTL
+http://5.180.164.197:8080/RTL/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv" tvg-logo="http://epg.one/img2/ntv.png" group-title="Germany" ,4. n-tv
+http://5.180.164.197:8080/NTV/index.m3u8
