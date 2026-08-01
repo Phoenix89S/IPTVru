@@ -6804,3 +6804,65 @@ https://stream8.cinerama.uz/1423/tracks-v1a1/mono.m3u8
 
 #EXTINF:-1 tvg-id="11601" tvg-logo="http://epg.one/img2/11601.png" group-title="4K" ,Venera.TV Том и Джерри 4K
 
+
+
+#EXTINF:-1 tvg-id="ntv0" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.1 НТВ 0
+http://cdn2.ntv.ru/ntv0/index.m3u8
+#EXTINF:-1 tvg-id="ntv0-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.2 НТВ 0 HD
+http://cdn2.ntv.ru/ntv0_hd/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv1" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.3 НТВ 1
+http://cdn2.ntv.ru/ntv1/index.m3u8
+#EXTINF:-1 tvg-id="ntv1-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.4 НТВ 1 HD
+http://cdn-dvr.ntv.ru/ntv1_sd/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv2" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.5 НТВ 2
+http://cdn2.ntv.ru/ntv2/index.m3u8
+#EXTINF:-1 tvg-id="ntv2-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.6 НТВ 2 HD
+http://cdn-dvr.ntv.ru/ntv2_sd/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv4" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.7 НТВ 4
+http://cdn2.ntv.ru/ntv4/index.m3u8
+#EXTINF:-1 tvg-id="ntv4-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.8 НТВ 4 HD
+http://cdn-dvr.ntv.ru/ntv4_sd/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv7" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.9 НТВ 7
+http://cdn2.ntv.ru/ntv7/index.m3u8
+#EXTINF:-1 tvg-id="ntv7-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.10 НТВ 7 HD
+http://cdn-dvr.ntv.ru/ntv7_decklink/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv-msk" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.11 НТВ Москва
+http://cdn2.ntv.ru/ntv-msk/index.m3u8
+#EXTINF:-1 tvg-id="ntv-msk-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.12 НТВ Москва HD
+http://cdn2.ntv.ru/ntv-msk_hd/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv-spb" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.13 НТВ Санкт-Петербург
+http://cdn2.ntv.ru/ntv-spb/index.m3u8
+#EXTINF:-1 tvg-id="ntv-spb-hd" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.14 НТВ Санкт-Петербург HD
+http://cdn-dvr.ntv.ru/ntv-spb/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv-th-hit" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.15 НТВ Hit
+http://cdn2.ntv.ru/th_hit/index.m3u8
+#EXTINF:-1 tvg-id="ntv-th-pravo" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.16 НТВ Право
+http://cdn2.ntv.ru/th_pravo/index.m3u8
+#EXTINF:-1 tvg-id="ntv-th-serial" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.17 НТВ Serial
+http://cdn2.ntv.ru/th_serial/index.m3u8
+#EXTINF:-1 tvg-id="ntv-th-style" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.18 НТВ Style
+http://cdn2.ntv.ru/th_style/index.m3u8
+
+#EXTINF:-1 tvg-id="ntv-pes" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.19 НТВ Пёс
+http://cdn-dvr.ntv.ru/Pes/index.m3u8
+#EXTINF:-1 tvg-id="ntv-balabol" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.20 НТВ Балабол
+http://cdn-dvr.ntv.ru/Balabol/index.m3u8
+#EXTINF:-1 tvg-id="ntv-nevskiy" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.21 НТВ Невский
+http://cdn-dvr.ntv.ru/Nevskiy/index.m3u8
+#EXTINF:-1 tvg-id="ntv-shef" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.22 НТВ Шеф
+http://cdn-dvr.ntv.ru/Shef/index.m3u8
+#EXTINF:-1 tvg-id="ntv-skoraja" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.23 НТВ Скорая помощь
+http://cdn-dvr.ntv.ru/Skoraja_pomosh/index.m3u8
+#EXTINF:-1 tvg-id="ntv-sledstvie" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.24 НТВ Следствие
+http://cdn-dvr.ntv.ru/sledstvie/index.m3u8
+#EXTINF:-1 tvg-id="ntv-super" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.25 НТВ Супер
+http://cdn-dvr.ntv.ru/Super/index.m3u8
+#EXTINF:-1 tvg-id="ntv-svoya-igra" tvg-logo="https://iptvx.one/picons/ntv.png" group-title="Россия эфирные ТВ" ,4.26 НТВ Своя игра
+http://cdn-dvr.ntv.ru/svoya_igra/index.m3u8
