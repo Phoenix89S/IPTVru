@@ -10,7 +10,7 @@
 - **TELEVIZO** (Android) — рекомендуем!
 - **Hypnotix** (Linux)
 - **OTT Navigator** (Android TV)
-- **Временно работает с TVirl и Google Live channels (далее наладку стабильную работу)
+- **Временно работает с TVirl и Google Live channels (далее налажу стабильную работу)
 
 ## 🔌 Как подключить плейлист
 
