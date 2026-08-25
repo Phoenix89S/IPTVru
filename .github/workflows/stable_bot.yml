@@ -1,32 +1,95 @@
 name: IPTV Stable Bot
 
 on:
-  workflow_dispatch: # Позволяет запускать вручную из вкладки Actions
+  workflow_dispatch:
+    inputs:
+      second_source_url:
+        description: '(optional) SECOND_SOURCE_URL raw URL (raw.githubusercontent.com/...)'
+        required: false
+        default: ''
   schedule:
-    - cron: '0 */6 * * *' # Автозапуск каждые 6 часов
+    - cron: '0 */6 * * *' # каждые 6 часов
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    
+
     permissions:
-      contents: write # Даем роботу права на запись и коммиты в репозиторий
+      contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (gh-pages)
         uses: actions/checkout@v4
         with:
-          ref: gh-pages # Работаем с веткой gh-pages, где лежат твои файлы
+          ref: gh-pages
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Configure Git User
+      - name: Configure Git user
         run: |
-          git config --global user.name "github-actions[bot] (Stable Bot)"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot] (Stable Bot)"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Run script
-        run: python git_bot_for_stable.py
+      - name: Run git_bot_for_stable.py (prepare changes, SKIP_PUSH=true)
+        env:
+          SECOND_SOURCE_URL: ${{ github.event.inputs.second_source_url || '' }}
+          SKIP_PUSH: "true"               # скрипт не будет пушить ветку сам — workflow сделает push в gh-pages-2
+          TARGET_PUSH_BRANCH: "gh-pages-2"
+        run: |
+          python git_bot_for_stable.py
+
+      - name: Show working tree status (for logs)
+        run: |
+          echo "==== git status ===="
+          git status --porcelain
+          echo "==== git diff (last) ===="
+          git --no-pager diff --name-only || true
+
+      - name: Commit and push updated playlists to gh-pages-2 (if changed)
+        env:
+          TARGET_BRANCH: gh-pages-2
+        run: |
+          set -e
+          # Проверим, есть ли изменения в рабочем дереве
+          CHANGES=$(git status --porcelain)
+          if [ -z "$CHANGES" ]; then
+            echo "Нет изменений после запуска скрипта — ничего не пушим."
+            exit 0
+          fi
+
+          echo "Найдено изменений в рабочем дереве:"
+          echo "$CHANGES"
+
+          # Создаём/обновляем ветку gh-pages-2 от текущего состояния (HEAD)
+          git checkout -B $TARGET_BRANCH
+
+          # Добавляем целевые файлы и любые созданные бэкапы
+          git add IPTVmir.m3u8 legacy/IPTVstable.m3u8 || true
+          git add *.bak_* legacy/*.bak_* || true
+
+          # Если staged изменений нет — выходим
+          if git diff --staged --quiet; then
+            echo "Не найдено индексированных изменений для commit (возможно изменения не затронули целевые файлы)."
+            exit 0
+          fi
+
+          # Commit & push
+          COMMIT_MSG="chore: update playlists (automated) - $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git commit -m "$COMMIT_MSG"
+          git push --set-upstream origin $TARGET_BRANCH
+          echo "Изменения запушены в ветку: $TARGET_BRANCH"
+
+      - name: Upload artifacts (updated playlists + backups)
+        uses: actions/upload-artifact@v4
+        with:
+          name: iptv-playlists-artifacts
+          path: |
+            IPTVmir.m3u8
+            legacy/IPTVstable.m3u8
+            *.bak_*
+            legacy/*.bak_*
