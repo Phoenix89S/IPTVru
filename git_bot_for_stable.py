@@ -1,14 +1,39 @@
+#!/usr/bin/env python3
+# coding: utf-8
+"""
+git_bot_for_stable.py
+- читает локальные целевые файлы (gh-pages checkout)
+- загружает donor-источники (SOURCE_URL и OPTIONAL SECOND_SOURCE_URL)
+- применяет фильтрацию только ко второму донору (если указан)
+- добавляет в конец целевых файлов группу "Стабильные ТВ" только новых записей
+- делает backup файлов и создает новую ветку fix/... с коммитом и пушем
+"""
+
 import os
 import re
 import subprocess
 import urllib.request
+import time
+import shutil
+import sys
 
-# Источник и целевые файлы в репозитории
+# ---------- Конфигурация ----------
+# Донорские raw-URL (первый обычно не фильтруем, второй — донор, к нему применяется фильтр)
 SOURCE_URL = "https://raw.githubusercontent.com/Phoenix89S/IpTV_playlist_2026Ru/main/ngenix_found_1.m3u"
+SECOND_SOURCE_URL = ""  # <-- сюда вставьте URL второго источника-донора (raw.githubusercontent.com/...)
+
+# Применять фильтрацию blacklist/has_digit_index только ко второму источнику
+FILTER_SECOND_SOURCE = True
+
+# Локальные целевые файлы (в вашем локальном gh-pages-клоне)
 TARGET_MIR = "IPTVmir.m3u8"
 TARGET_STABLE = "legacy/IPTVstable.m3u8"
 
-# Чёрный список каналов (технический / Safe Edition)
+# Резервные raw-фоллбеки (необязательно; если локального файла нет — можно подгрузить с gh-pages raw)
+TARGET_MIR_RAW = "https://raw.githubusercontent.com/Phoenix89S/IPTVru/gh-pages/IPTVmir.m3u8"
+TARGET_STABLE_RAW = "https://raw.githubusercontent.com/Phoenix89S/IPTVru/gh-pages/legacy/IPTVstable.m3u8"
+
+# Чёрный список каналов (Safe Edition)
 BLACKLIST = {
     "365 дней", "europa plus tv", "fashion tv", "gulli girl", "hdl", "khl", "khl prime",
     "mma-tv.com", "women’s magazine", "авто плюс", "бокс тв", "big planet", "barely legal",
@@ -20,103 +45,259 @@ BLACKLIST = {
     "playboy", "erox"
 }
 
+# ---------- Утилиты ----------
+def run(cmd, cwd=None, check=True):
+    try:
+        res = subprocess.run(cmd, cwd=cwd, check=check, capture_output=True, text=True)
+        return res
+    except subprocess.CalledProcessError as e:
+        print(f"Команда {' '.join(cmd)} завершилась с ошибкой: {e}\nstderr:\n{e.stderr}")
+        raise
+
+def git_is_clean():
+    res = run(["git", "status", "--porcelain"], check=True)
+    return res.stdout.strip() == ""
+
+def ensure_on_branch(branch="gh-pages"):
+    run(["git", "fetch", "origin"], check=True)
+    run(["git", "checkout", branch], check=True)
+    run(["git", "pull", "origin", branch], check=True)
+
+def create_branch_from(branch_from="gh-pages", new_branch=None):
+    if not new_branch:
+        new_branch = f"fix/restore-playlists-{time.strftime('%Y%m%d_%H%M%S')}"
+    ensure_on_branch(branch_from)
+    run(["git", "checkout", "-b", new_branch], check=True)
+    return new_branch
+
+def push_branch(branch):
+    run(["git", "push", "-u", "origin", branch], check=True)
+
+def fetch_url(url, timeout=15):
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as r:
+            return r.read().decode('utf-8', errors='ignore')
+    except Exception as e:
+        print(f"Ошибка загрузки {url}: {e}")
+        return ""
+
+# ---------- Парсинг M3U ----------
+def parse_m3u_content(content):
+    lines = content.splitlines()
+    entries = []
+    current_meta = None
+    tvg_re = re.compile(r'tvg-id="([^"]+)"', re.IGNORECASE)
+    for line in lines:
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith("#EXTINF:"):
+            current_meta = s
+        elif not s.startswith("#"):
+            url = s
+            if current_meta:
+                parts = current_meta.split(",", 1)
+                name = parts[1].strip() if len(parts) > 1 else ""
+                m = tvg_re.search(current_meta)
+                key = m.group(1) if m else url
+                entries.append({'extinf': current_meta, 'url': url, 'key': key, 'name': name})
+                current_meta = None
+            else:
+                # URL without meta
+                entries.append({'extinf': '', 'url': url, 'key': url, 'name': ''})
+    return entries
+
+def read_local_or_raw(path, raw_fallback=None):
+    # Читаем локально, если есть
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
+    # иначе пробуем raw fallback (если передан). Если raw пустой — возвращаем пустую строку (и не создаём файл)
+    if raw_fallback:
+        print(f"Локальный файл {path} не найден — пробуем raw {raw_fallback}")
+        return fetch_url(raw_fallback)
+    return ""
+
 def is_blacklisted(title):
-    title_clean = title.strip().lower()
+    t = (title or "").strip().lower()
     for bad in BLACKLIST:
-        if bad in title_clean:
+        if bad in t:
             return True
     return False
 
 def has_digit_index_in_path(url):
-    # Проверяем наличие паттернов вроде /1/, /2/, /123/ в путях URL
     return bool(re.search(r'/\d+/', url))
 
-def git_commit_and_push():
-    commit_message = (
-        "feat: добавлены стабильные потоки из открытых и новооткрытых источников\n\n"
-        "- добавлен файл IPTVstable.m3u8 в каталог /legacy\n"
-        "- зафиксирован стабильный результат поиска\n"
-        "- Никаких 18+ каналов не дадим(!) забота о детях"
-    )
-    
-    try:
-        print("Выполняем git add...")
-        subprocess.run(["git", "add", TARGET_MIR, TARGET_STABLE], check=True)
-        
-        # Проверяем, есть ли изменения для коммита
-        status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
-        if not status.stdout.strip():
-            print("Нет изменений для коммита.")
-            return
+def collect_existing_keys(path, raw_fallback=None):
+    content = read_local_or_raw(path, raw_fallback=raw_fallback)
+    if not content:
+        return set()
+    entries = parse_m3u_content(content)
+    keys = set()
+    for e in entries:
+        if e.get('key'):
+            keys.add(e['key'])
+        if e.get('url'):
+            keys.add(e['url'])
+    return keys
 
-        print("Выполняем git commit...")
-        subprocess.run(["git", "commit", "-m", commit_message], check=True)
-        
-        print("Выполняем git push...")
-        subprocess.run(["git", "push"], check=True)
-        print("Автокоммит и пуш успешно выполнены!")
-    except subprocess.CalledProcessError as e:
-        print(f"Ошибка при работе с Git: {e}")
+def ensure_group_title_in_extinf(extinf, group_title):
+    if not extinf:
+        return f'#EXTINF:-1 group-title="{group_title}",'
+    if 'group-title=' in extinf:
+        return re.sub(r'group-title="[^"]*"', f'group-title="{group_title}"', extinf)
+    if ',' in extinf:
+        meta, name = extinf.split(',', 1)
+        return f'{meta} group-title="{group_title}",{name}'
+    return f'{extinf} group-title="{group_title}",'
 
-def process_playlist():
-    print("Загрузка и обработка плейлиста...")
-    
+def backup_file(path):
+    if os.path.exists(path):
+        ts = time.strftime('%Y%m%d_%H%M%S')
+        bak = f"{path}.bak_{ts}"
+        shutil.copy2(path, bak)
+        print(f"Создан backup: {bak}")
+
+def append_group_if_new(target_path, donor_entries, group_title="Стабильные ТВ", raw_fallback=None):
+    # Возвращает количество добавленных записей (0 — если ничего не добавлено)
+    # Не создаём файл, если donor_entries пустой
+    if not donor_entries:
+        return 0
+
+    existing_keys = collect_existing_keys(target_path, raw_fallback=raw_fallback)
+    to_append = []
+    for e in donor_entries:
+        key = e.get('key') or e.get('url') or e.get('extinf')
+        url = e.get('url') or ""
+        if key in existing_keys or url in existing_keys:
+            continue
+        extinf_with_group = ensure_group_title_in_extinf(e.get('extinf'), group_title)
+        to_append.append((extinf_with_group, url))
+        existing_keys.add(key)
+        existing_keys.add(url)
+
+    if not to_append:
+        return 0
+
+    # backup
+    backup_file(target_path)
+
+    os.makedirs(os.path.dirname(target_path) or ".", exist_ok=True)
+    with open(target_path, "a", encoding="utf-8") as f:
+        f.write("\n")
+        f.write(f"# ===== {group_title} (added {time.strftime('%Y-%m-%d %H:%M:%S')}) =====\n")
+        for extinf, url in to_append:
+            f.write(extinf.rstrip() + "\n")
+            f.write(url.rstrip() + "\n")
+
+    return len(to_append)
+
+# ---------- Основной поток ----------
+def main():
+    # Проверки git-окружения
+    if not shutil.which("git"):
+        print("Git не найден в PATH. Установите git и повторите.")
+        sys.exit(1)
+
+    if not git_is_clean():
+        print("Рабочее дерево git не чистое. Очистите/закоммитьте изменения или запустите скрипт в отдельной копии.")
+        sys.exit(1)
+
+    # Подготовим новую ветку от gh-pages
+    branch_name = f"fix/restore-playlists-{time.strftime('%Y%m%d_%H%M%S')}"
+    print("Создаём ветку:", branch_name)
     try:
-        req = urllib.request.urlopen(SOURCE_URL)
-        content = req.read().decode('utf-8', errors='ignore')
+        new_branch = create_branch_from("gh-pages", branch_name)
     except Exception as e:
-        print(f"Ошибка загрузки источника: {e}")
-        return
+        print("Не удалось создать ветку: ", e)
+        sys.exit(1)
 
-    lines = content.splitlines()
-    valid_items = []
-    
-    current_meta = None
-    
-    for line in lines:
-        line_str = line.strip()
-        if line_str.startswith("#EXTINF:"):
-            current_meta = line_str
-        elif line_str and not line_str.startswith("#"):
-            url = line_str
-            if current_meta:
-                # Извлекаем название канала после запятой
-                parts = current_meta.split(',', 1)
-                channel_name = parts[1].strip() if len(parts) > 1 else "Unknown"
-                
-                # Проверки безопасности и фильтрации:
-                # 1. Чёрный список (удаляем на лету)
-                # 2. Цифровые индексы в пути (например, /1/, /2/)
-                if not is_blacklisted(channel_name) and not has_digit_index_in_path(url):
-                    valid_items.append((channel_name, url))
-                
-                current_meta = None
+    # Собираем записи из доноров
+    donor_entries = []
 
-    # Формируем итоговый текст M3U8 со сквозной нумерацией и группой «Стабильные ТВ»
-    output_lines = ["#EXTM3U"]
-    
-    for index, (name, url) in enumerate(valid_items, start=1):
-        numbered_name = f"{index}. {name}"
-        extinf = f"#EXTINF:-1 tvg-chno=\"{index}\" group-title=\"Стабильные ТВ\",{numbered_name}"
-        output_lines.append(extinf)
-        output_lines.append(url)
+    # Первый источник — без фильтрации
+    if SOURCE_URL:
+        raw1 = fetch_url(SOURCE_URL)
+        if raw1:
+            ents1 = parse_m3u_content(raw1)
+            # пометим источник (опционально)
+            for e in ents1:
+                e['source'] = 'SOURCE_URL'
+            print(f"Из SOURCE_URL: найдено {len(ents1)} записей (без фильтра).")
+            donor_entries.extend(ents1)
+        else:
+            print("SOURCE_URL пустой или недоступен — пропускаем.")
 
-    final_content = "\n".join(output_lines) + "\n"
+    # Второй источник — фильтруем, если указан
+    if SECOND_SOURCE_URL:
+        raw2 = fetch_url(SECOND_SOURCE_URL)
+        if raw2:
+            ents2 = parse_m3u_content(raw2)
+            filtered = []
+            for e in ents2:
+                name = e.get('name') or ""
+                url = e.get('url') or ""
+                if FILTER_SECOND_SOURCE:
+                    if is_blacklisted(name):
+                        continue
+                    if has_digit_index_in_path(url):
+                        continue
+                e['source'] = 'SECOND_SOURCE_URL'
+                filtered.append(e)
+            print(f"Из SECOND_SOURCE_URL (после фильтрации): {len(filtered)} записей.")
+            donor_entries.extend(filtered)
+        else:
+            print("SECOND_SOURCE_URL пустой или недоступен — пропускаем.")
 
-    # Убедимся, что каталог legacy существует
-    os.makedirs(os.path.dirname(TARGET_STABLE), exist_ok=True)
+    if not donor_entries:
+        print("Нет донорских записей — ветка создана, но изменений не будет.")
+        print("Вы можете заполнить SECOND_SOURCE_URL и перезапустить скрипт.")
+        # Осторожно: мы оставили новую ветку, но без изменений
+        print(f"Ветка создана: {branch_name}")
+        sys.exit(0)
 
-    # Записываем в оба целевых файла
-    with open(TARGET_MIR, "w", encoding="utf-8") as f:
-        f.write(final_content)
-        
-    with open(TARGET_STABLE, "w", encoding="utf-8") as f:
-        f.write(final_content)
+    # Добавляем в целевые файлы
+    modified = []
+    added_total = 0
 
-    print(f"Успешно обработано! Добавлено каналов (с учетом фильтров): {len(valid_items)}")
-    
-    # Автоматически отправляем изменения в репозиторий
-    git_commit_and_push()
+    # Для TARGET_MIR читаем локально, fallback на raw если локального нет
+    added = append_group_if_new(TARGET_MIR, donor_entries, group_title="Стабильные ТВ", raw_fallback=TARGET_MIR_RAW)
+    if added:
+        print(f"В {TARGET_MIR} добавлено: {added}")
+        modified.append(TARGET_MIR)
+        added_total += added
+    else:
+        print(f"В {TARGET_MIR} нет новых записей для добавления.")
+
+    # Для TARGET_STABLE
+    added = append_group_if_new(TARGET_STABLE, donor_entries, group_title="Стабильные ТВ", raw_fallback=TARGET_STABLE_RAW)
+    if added:
+        print(f"В {TARGET_STABLE} добавлено: {added}")
+        modified.append(TARGET_STABLE)
+        added_total += added
+    else:
+        print(f"В {TARGET_STABLE} нет новых записей для добавления.")
+
+    if not modified:
+        print("Новых записей не было добавлено ни в один файл — откат ветки (возврат на gh-pages).")
+        # Переключимся обратно на gh-pages и удалим пустую ветку
+        run(["git", "checkout", "gh-pages"], check=True)
+        run(["git", "branch", "-D", branch_name], check=True)
+        sys.exit(0)
+
+    # Коммит и пуш фиксационной ветки
+    try:
+        run(["git", "add"] + modified, check=True)
+        commit_msg = f"chore: append 'Стабильные ТВ' from donors ({time.strftime('%Y-%m-%d %H:%M:%S')})"
+        run(["git", "commit", "-m", commit_msg], check=True)
+        push_branch(branch_name)
+    except Exception as e:
+        print("Ошибка при коммите/пуше:", e)
+        sys.exit(1)
+
+    print(f"Готово. Добавлено всего: {added_total} записей.")
+    print(f"Изменения закоммичены и запушены в ветку: {branch_name}")
+    print(f"URL ветки: https://github.com/<OWNER>/<REPO>/tree/{branch_name}  (замените OWNER/REPO на ваш репо)")
 
 if __name__ == "__main__":
-    process_playlist()
+    main()
