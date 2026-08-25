@@ -1,0 +1,32 @@
+name: IPTV Stable Bot
+
+on:
+  workflow_dispatch: # Позволяет запускать вручную из вкладки Actions
+  schedule:
+    - cron: '0 */6 * * *' # Автозапуск каждые 6 часов (можно изменить по вкусу)
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write # Даем роботу права на запись и коммиты в репозиторий
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages # Указываем рабочую ветку
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Configure Git User
+        run: |
+          git config --global user.name "github-actions[bot] (Stable Bot)"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run script
+        run: python git_bot_for_stable.py
