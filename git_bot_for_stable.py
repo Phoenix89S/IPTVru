@@ -6,7 +6,9 @@ git_bot_for_stable.py
 - загружает donor-источники (SOURCE_URL и OPTIONAL SECOND_SOURCE_URL)
 - применяет фильтрацию только ко второму донору (если указан)
 - добавляет в конец целевых файлов группу "Стабильные ТВ" только новых записей
-- делает backup файлов и создает новую ветку fix/... с коммитом и пушем
+- делает backup файлов
+- если SKIP_PUSH=false -> создаёт фиксационную ветку от gh-pages, коммитит и пушит её
+- если SKIP_PUSH=true  -> не пушит и не создаёт ветку, оставляет изменения в рабочем дереве для workflow
 """
 
 import os
@@ -21,6 +23,13 @@ import sys
 # Донорские raw-URL (первый обычно не фильтруем, второй — донор, к нему применяется фильтр)
 SOURCE_URL = "https://raw.githubusercontent.com/Phoenix89S/IpTV_playlist_2026Ru/main/ngenix_found_1.m3u"
 SECOND_SOURCE_URL = ""  # <-- сюда вставьте URL второго источника-донора (raw.githubusercontent.com/...)
+
+# allow overriding via env (useful for workflow inputs)
+SECOND_SOURCE_URL = os.environ.get("SECOND_SOURCE_URL", SECOND_SOURCE_URL)
+# если SKIP_PUSH = true — скрипт НЕ будет создавать ветку/коммитить/push — workflow сделает push
+SKIP_PUSH = os.environ.get("SKIP_PUSH", "true").lower() in ("1", "true", "yes")
+# целевая ветка для пуша из workflow (по умолчанию gh-pages-2)
+TARGET_PUSH_BRANCH = os.environ.get("TARGET_PUSH_BRANCH", "gh-pages-2")
 
 # Применять фильтрацию blacklist/has_digit_index только ко второму источнику
 FILTER_SECOND_SOURCE = True
@@ -203,14 +212,18 @@ def main():
         print("Рабочее дерево git не чистое. Очистите/закоммитьте изменения или запустите скрипт в отдельной копии.")
         sys.exit(1)
 
-    # Подготовим новую ветку от gh-pages
+    # branch_name подготовим заранее — используем только если SKIP_PUSH == False
     branch_name = f"fix/restore-playlists-{time.strftime('%Y%m%d_%H%M%S')}"
-    print("Создаём ветку:", branch_name)
-    try:
-        new_branch = create_branch_from("gh-pages", branch_name)
-    except Exception as e:
-        print("Не удалось создать ветку: ", e)
-        sys.exit(1)
+
+    if not SKIP_PUSH:
+        print("Создаём ветку:", branch_name)
+        try:
+            new_branch = create_branch_from("gh-pages", branch_name)
+        except Exception as e:
+            print("Не удалось создать ветку: ", e)
+            sys.exit(1)
+    else:
+        print("SKIP_PUSH=true — не создаём ветку в скрипте, только модифицируем файлы в рабочем каталоге.")
 
     # Собираем записи из доноров
     donor_entries = []
@@ -250,10 +263,9 @@ def main():
             print("SECOND_SOURCE_URL пустой или недоступен — пропускаем.")
 
     if not donor_entries:
-        print("Нет донорских записей — ветка создана, но изменений не будет.")
-        print("Вы можете заполнить SECOND_SOURCE_URL и перезапустить скрипт.")
-        # Осторожно: мы оставили новую ветку, но без изменений
-        print(f"Ветка создана: {branch_name}")
+        print("Нет донорских записей — изменений не будет.")
+        if not SKIP_PUSH:
+            print(f"Ветка создана: {branch_name} (без изменений).")
         sys.exit(0)
 
     # Добавляем в целевые файлы
@@ -279,13 +291,28 @@ def main():
         print(f"В {TARGET_STABLE} нет новых записей для добавления.")
 
     if not modified:
-        print("Новых записей не было добавлено ни в один файл — откат ветки (возврат на gh-pages).")
-        # Переключимся обратно на gh-pages и удалим пустую ветку
-        run(["git", "checkout", "gh-pages"], check=True)
-        run(["git", "branch", "-D", branch_name], check=True)
+        print("Новых записей не было добавлено ни в один файл.")
+        if not SKIP_PUSH:
+            # если мы создавали ветку в скрипте, откатим её — ничего не коммитим
+            try:
+                run(["git", "checkout", "gh-pages"], check=True)
+                run(["git", "branch", "-D", branch_name], check=True)
+                print(f"Пустая ветка {branch_name} удалена.")
+            except Exception as e:
+                print("Ошибка при удалении пустой ветки:", e)
+        else:
+            print("SKIP_PUSH=true — оставляем рабочее дерево без коммита для workflow.")
         sys.exit(0)
 
-    # Коммит и пуш фиксационной ветки
+    # Если SKIP_PUSH == True — не делаем коммит/пуш в скрипте, workflow это выполнит
+    if SKIP_PUSH:
+        print("SKIP_PUSH=true — изменения внесены в рабочем дереве, но не закоммичены/запушены.")
+        print(f"Добавлено всего: {added_total} записей. Файлы готовы для commit/push в ветку {TARGET_PUSH_BRANCH} через workflow.")
+        # Печатаем modified для логов
+        print("Modified files:", modified)
+        sys.exit(0)
+
+    # Иначе — закоммитить и запушить фиксационную ветку (скрипт сам создавал ветку ранее)
     try:
         run(["git", "add"] + modified, check=True)
         commit_msg = f"chore: append 'Стабильные ТВ' from donors ({time.strftime('%Y-%m-%d %H:%M:%S')})"
