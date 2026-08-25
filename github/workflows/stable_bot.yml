@@ -3,7 +3,7 @@ name: IPTV Stable Bot
 on:
   workflow_dispatch: # Позволяет запускать вручную из вкладки Actions
   schedule:
-    - cron: '0 */6 * * *' # Автозапуск каждые 6 часов (можно изменить по вкусу)
+    - cron: '0 */6 * * *' # Автозапуск каждые 6 часов
 
 jobs:
   run-bot:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: gh-pages # Указываем рабочую ветку
+          ref: gh-pages # Работаем с веткой gh-pages, где лежат твои файлы
 
       - name: Set up Python
         uses: actions/setup-python@v5
