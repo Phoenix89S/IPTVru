@@ -1,0 +1,27 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="1" backup-count="12",NTV
+https://protokolldns.xyz/ntv.l.i.v.e5547892023/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="2" backup-count="12",NTV [ALT 2]
+http://str2.iptvhd.ru:8080/NTV/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="3" backup-count="12",NTV [ALT 3]
+http://str2.iptvhd.ru:8080/NTV_HD/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="4" backup-count="12",NTV [ALT 4]
+https://2-fss-1.streamhoster.com/pl_122/201748-1431018-1/chunklist.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="5" backup-count="12",NTV [ALT 5]
+http://176.118.197.101/NTV/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="6" backup-count="12",NTV [ALT 6]
+http://flussonic.linkintel.ru/ntv/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="7" backup-count="12",NTV [ALT 7]
+https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8?e=2077050299&s=HSWg81JrQ3OqmwuWkEIDAQ&scheme=https
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="8" backup-count="12",NTV [ALT 8]
+https://cdn-dvr.ntv.ru/ntv0_hd/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="9" backup-count="12",NTV [ALT 9]
+https://stream8.cinerama.uz/1023/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="10" backup-count="12",NTV [ALT 10]
+https://cdn4.skygo.mn/live/disk1/NTVHD/HLSv3-FTA/NTVHD.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="11" backup-count="12",NTV [ALT 11]
+http://152.89.62.111:8080/nXyAiP3DNp/QgOuvocpGv/223012
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="12" backup-count="12",NTV [ALT 12]
+http://45.153.24.78/NTV/index.m3u8
+#EXTINF:-1 tvg-id="2601" tvg-name="NTV" tvg-logo="https://i.imgur.com/b8W3Aah.png" group-title="Canada" stream-rank="13" backup-count="12",NTV [ALT 13]
+https://cdn.ntv.ru/ntv-spb/index.m3u8
