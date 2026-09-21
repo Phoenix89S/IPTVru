@@ -1,0 +1,143 @@
+name: RU IPTV Stable Parser
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 3 * * *"
+
+  push:
+    paths:
+      - ".github/workflows/stable.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ru-iptv-stable
+  cancel-in-progress: false
+
+jobs:
+  stable:
+    name: Run RU IPTV Stable Parser
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Download stable.py
+        run: |
+          curl -fL \
+            "https://raw.githubusercontent.com/Phoenix89S/IPTVru/gh-pages/stable.py" \
+            -o stable.py
+
+          test -s stable.py
+
+      - name: Check Python
+        run: |
+          python --version
+
+      - name: Check stable.py syntax
+        run: |
+          python -m py_compile stable.py
+
+      - name: Show parser help
+        run: |
+          python stable.py --help
+
+      - name: Run RU IPTV Stable Parser
+        run: |
+          python stable.py
+
+      - name: Show generated files
+        if: always()
+        run: |
+          echo "============================================================"
+          echo "GENERATED FILES"
+          echo "============================================================"
+
+          if [ -d "mega_iptv_output" ]; then
+            find mega_iptv_output -maxdepth 2 -type f \
+              -printf '%p (%s bytes)\n' | sort
+          else
+            echo "mega_iptv_output directory not found"
+          fi
+
+      - name: Show statistics
+        if: always()
+        run: |
+          echo "============================================================"
+          echo "STATISTICS"
+          echo "============================================================"
+
+          if [ -f "mega_iptv_output/statistics.txt" ]; then
+            cat mega_iptv_output/statistics.txt
+          else
+            echo "statistics.txt not found"
+          fi
+
+      - name: Show Stable state
+        if: always()
+        run: |
+          echo "============================================================"
+          echo "STABLE STATE"
+          echo "============================================================"
+
+          if [ -f "mega_iptv_output/stable_state.json" ]; then
+            cat mega_iptv_output/stable_state.json
+          else
+            echo "stable_state.json not found"
+          fi
+
+      - name: Show Stable playlist info
+        if: always()
+        run: |
+          echo "============================================================"
+          echo "STABLE PLAYLIST"
+          echo "============================================================"
+
+          if [ -f "mega_iptv_output/Stable_Ru_IPTV.m3u" ]; then
+            echo "File:"
+            ls -lh mega_iptv_output/Stable_Ru_IPTV.m3u
+
+            echo
+            echo "Entries:"
+            grep -c '^#EXTINF:' \
+              mega_iptv_output/Stable_Ru_IPTV.m3u || true
+          else
+            echo "Stable_Ru_IPTV.m3u not found"
+          fi
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ru-iptv-stable-${{ github.run_number }}
+          path: |
+            mega_iptv_output/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit generated results
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "RU IPTV: update parser results"
+            git push
+          fi
