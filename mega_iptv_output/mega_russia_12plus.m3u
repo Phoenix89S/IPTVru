@@ -1,1 +1,25 @@
 #EXTM3U
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="1" backup-count="11",Russia-24 (720p)
+https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="2" backup-count="11",Russia-24 (720p) [ALT 2]
+http://88.212.15.27/live/test_trojka_25p/playlist.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="3" backup-count="11",Russia-24 (720p) [ALT 3]
+http://str2.iptvhd.ru:8080/Rossiya_24/index.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="4" backup-count="11",Russia-24 (720p) [ALT 4]
+http://176.118.197.101/Rossiya24/index.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="5" backup-count="11",Russia-24 (720p) [ALT 5]
+http://77.232.131.211/Rossiya24/index.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="6" backup-count="11",Russia-24 (720p) [ALT 6]
+http://dmi3y-tv.online/hls/smotrim/T2/CH_RUSSIA24_INT.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="7" backup-count="11",Russia-24 (720p) [ALT 7]
+https://fs.uplink.kz/rossia_24/mono.m3u8?token=onlinetv
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="8" backup-count="11",Russia-24 (720p) [ALT 8]
+https://uiptv.do.am/1ufc/000000006/playlist.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="9" backup-count="11",Russia-24 (720p) [ALT 9]
+https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="10" backup-count="11",Russia-24 (720p) [ALT 10]
+https://stream8.cinerama.uz/1021/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="11" backup-count="11",Russia-24 (720p) [ALT 11]
+https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-hd/index.m3u8
+#EXTINF:-1 tvg-id="2615" tvg-name="Russia-24 (720p)" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Rossiya-24_Logo.svg/960px-Rossiya-24_Logo.svg.png" group-title="News" stream-rank="12" backup-count="11",Russia-24 (720p) [ALT 12]
+https://vgtrkregion-reg.cdnvideo.ru/vgtrk/habarovsk/russia24-sd/index.m3u8
