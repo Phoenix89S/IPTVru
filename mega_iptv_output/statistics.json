@@ -1,16 +1,16 @@
 {
-  "channels": 12858,
-  "russian_channels": 781,
+  "channels": 12863,
+  "russian_channels": 809,
   "target_channels": 20000,
   "target_russian_channels": 10000,
-  "stream_urls": 13736,
-  "alive_stream_urls": 9865,
+  "stream_urls": 13761,
+  "alive_stream_urls": 9810,
   "channels_with_12plus_pool": 0,
   "channels_with_12plus_alive": 0,
   "sources": 1285,
   "epg_sources": 30,
-  "channels_with_epg": 12846,
-  "epg_matched_by_epg_one": 11001,
-  "epg_matched_by_teleguide": 53,
-  "generated_at": 1791889084
+  "channels_with_epg": 12851,
+  "epg_matched_by_epg_one": 11008,
+  "epg_matched_by_teleguide": 54,
+  "generated_at": 1791969308
 }
