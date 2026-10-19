@@ -1,16 +1,16 @@
 RU IPTV MEGA PARSER
 ============================================================
-Channels: 12953
+Channels: 12958
 Russian/CIS priority: 802
-Stream URLs: 13828
-Alive stream URLs: 10017
+Stream URLs: 13831
+Alive stream URLs: 9947
 Channels with >=12 pool: 0
 Channels with >=12 alive: 0
-Channels with EPG: 12941
-EPG.one matches: 11124
-Teleguide matches: 0
+Channels with EPG: 12946
+EPG.one matches: 11106
+Teleguide matches: 54
 Sources: 1288
-EPG sets: 29
+EPG sets: 30
 
 Target 20k reached: NO
 Russian target 10k reached: NO
